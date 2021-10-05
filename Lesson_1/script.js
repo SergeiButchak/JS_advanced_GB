@@ -8,7 +8,7 @@ const goods = [
 
 const $goodsList = document.querySelector('.goods-list');
   
-const renderGoodsItem = ({ title, price }) => {
+const renderGoodsItem = ({ title='New good', price = 0 }) => {
     return `<div class="goods-item"><h3>${title}</h3><p>${price}</p></div>`;
 };
   
