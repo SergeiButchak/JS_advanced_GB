@@ -1,0 +1,37 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    width: 100vw;
+    height: 50px;
+
+    border: black 1px solid;
+    background-color: darkblue;
+}
+
+main {
+    width: 80vw;
+    margin: 0 auto ;
+    border: grey 1px solid;
+}
+
+.cart-button {
+    margin: 15px 15px 0 15px;
+}
+
+.goods-list {
+    width: 1200px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    margin: 50px auto;
+}
+
+.goods-item {
+    width: 350px;
+    border: indigo 1px solid;
+    margin: 25px auto;
+    padding: 10px;
+}
