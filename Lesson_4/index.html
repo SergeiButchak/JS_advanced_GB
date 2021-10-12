@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Урок 4. Регулярные выражения</h1>
+<p>1. Дан большой текст, в котором для оформления прямой речи используются одинарные кавычки. Придумать шаблон, который
+    заменяет одинарные кавычки на двойные.</p>
+<p>2. Улучшить шаблон так, чтобы в конструкциях типа aren't одинарная кавычка не заменялась на двойную.</p>
+<pre>Вариант 1. '/\'/gm'
+Вариант 2. '/^\'|\'(?![\\w])|(?&lt![\\w])\'/gm'</pre>
+
+<lable for="task1">Введите текст для проверки</lable>
+<br>
+<textarea id="task1" cols="150" rows="20" style="margin:10px;"></textarea>
+<br>
+<input type="button" id="button1" value="Проверить способ 1" style="margin:10px;">
+<input type="button" id="button2" value="Проверить способ 2" style="margin:10px;">
+
+<p>3. *Создать форму обратной связи с полями: Имя, Телефон, E-mail, текст, кнопка Отправить. При нажатии на кнопку
+    Отправить произвести валидацию полей следующим образом:
+    <br>
+    a. Имя содержит только буквы. <br>
+    b. Телефон имеет вид +7(000)000-0000. <br>
+    c. E-mail имеет вид mymail@mail.ru, или my.mail@mail.ru, или my-mail@mail.ru. <br>
+    d. Текст произвольный. <br>
+    e. Если одно из полей не прошло валидацию, необходимо выделить это поле красной рамкой и сообщить пользователю об
+    ошибке.</p>
+<div style="border: 1px black solid; padding: 10px;">
+    <form>
+        <label for="username">Name</label>
+        <br>
+        <input type="text" id="username">
+        <br>
+        <label for="phone">Phone</label>
+        <br>
+        <input type="text" id="phone">
+        <br>
+        <label for="email">Email</label>
+        <br>
+        <input type="text" id="email">
+        <br>
+        <label for="text">Text</label>
+        <br>
+        <input type="text" id="text">
+        <br>
+        <input type="button" id="submit" value="Проверить">
+    </form>
+</div>
+<script>
+    button1.onclick = () => {
+        let pattern = new RegExp('\'', 'gm')
+        let buf = task1.value.replace(pattern, '"');
+        task1.value = buf;
+    }
+
+    button2.onclick = () => {
+        let pattern = new RegExp('^\'|\'(?![\\w])|(?<![\\w])\'', 'gm')
+        let buf = task1.value.replace(pattern, '"');
+        task1.value = buf;
+    }
+
+    submit.onclick = () => {
+        let name_pattern = new RegExp('^\\w+$');
+        let phone_pattern = new RegExp('^\\+7\\(\\d{3}\\)\\d{3}-\\d{4}$');
+        let email_pattern = new RegExp('^\\w*((-|[.])(?=\\w+))?\\w*@mail.ru')
+        let res = '';
+        if (name_pattern.test(username.value)) {
+            username.style.borderColor = 'green';
+        } else {
+            username.style.borderColor = 'red';
+            res += 'Некорректное имя\n';
+        }
+        if (phone_pattern.test(phone.value)) {
+            phone.style.borderColor = 'green';
+        } else {
+            phone.style.borderColor = 'red';
+            res += 'Некорректный номер телефона\n';
+        }
+        if (email_pattern.test(email.value)) {
+            email.style.borderColor = 'green';
+        } else {
+            email.style.borderColor = 'red';
+            res += 'Некорректный email\n';
+        }
+        if (res !== '') {
+            alert(res);
+        }
+    }
+</script>
+</body>
+</html>
