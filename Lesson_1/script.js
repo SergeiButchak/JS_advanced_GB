@@ -188,11 +188,7 @@ const app = new Vue({
     methods: {
         clickBasket() {
             this.isVisibleCart = !this.isVisibleCart;
-            // if (this.isVisibleCart){
-            //     setTimeout(this.basket.render()
-            //     , (1000));
-            //     }
-            console.log(this.isVisibleCart);
+            this.basket.render();
         },
         searchGood() {
             this.goods.render(this.searchLine)
