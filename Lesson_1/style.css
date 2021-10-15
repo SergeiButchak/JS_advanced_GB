@@ -35,3 +35,23 @@ main {
     margin: 25px auto;
     padding: 10px;
 }
+
+.basket {
+    width: 100%;
+    border: grey 1px solid;
+}
+
+.basket-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    margin: 50px auto;
+
+}
+
+.basket-item {
+    width: 350px;
+    border: indigo 1px solid;
+    margin: 25px auto;
+    padding: 10px;
+}

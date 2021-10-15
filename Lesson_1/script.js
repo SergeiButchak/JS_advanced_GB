@@ -1,26 +1,3 @@
-// const goods = [
-//     { title: 'Shirt', price: 150 },
-//     { title: 'Socks', price: 50 },
-//     { title: 'Jacket', price: 350 },
-//     { title: 'Shoes', price: 250 },
-// ];
-//
-//
-// const $goodsList = document.querySelector('.goods-list');
-//
-// const renderGoodsItem = ({ title='New good', price = 0 }) => {
-//     return `<div class="goods-item"><h3>${title}</h3><p>${price}</p></div>`;
-// };
-//
-// const renderGoodsList = (list = goods) => {
-//     let goodsList = list.map(
-//             item => renderGoodsItem(item)
-//         ).join(' ');
-//
-//     $goodsList.insertAdjacentHTML('beforeend', goodsList);
-// }
-//
-// renderGoodsList();
 const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses/'
 
 function makeGETRequest(url, callback) {
@@ -72,6 +49,11 @@ class BasketItem {
     total() {
         return this.goodsItem.price * this.count;
     }
+
+    render() {
+        return `<div class="basket-item"><h3>${this.goodsItem.product_name}</h3><p>Количество: ${this.count}</p><p>Всего: ${this.total()}</p></div>`;
+    }
+
 }
 
 class BasketList {
@@ -82,8 +64,11 @@ class BasketList {
     getBasket() {
         makeGETRequest(`${API_URL}/getBasket.json`).then(
             (response) => {
-                this.goods = response.contents;
-                //this.render()
+                let list = response.contents;
+                list.forEach(item => {
+                    this.goods.push(new BasketItem(new GoodsItem(item.product_name, item.price), item.quantity))
+                })
+                this.render()
             },
             (error) => {
                 console.log(error)
@@ -115,10 +100,9 @@ class BasketList {
         );
     }
 
-
     totalCount() {
         let sum = 0;
-        for(let i = 0; i < this.goods.length; i++) {
+        for (let i = 0; i < this.goods.length; i++) {
             sum += this.goods[i].count;
         }
         return sum;
@@ -126,11 +110,25 @@ class BasketList {
 
     totalSum() {
         let sum = 0;
-        for(let i = 0; i < this.goods.length; i++) {
+        for (let i = 0; i < this.goods.length; i++) {
             sum += this.goods[i].total();
         }
         return sum;
     }
+
+    render() {
+        let listHtml = '';
+
+        this.goods.forEach(good => {
+            const goodItem = new BasketItem(good.goodsItem, good.count);
+            listHtml += goodItem.render();
+            console.log(good)
+        });
+        console.log(listHtml)
+        document.querySelector('.basket-list').innerHTML = listHtml;
+        // console.log(this.totalSum());
+    }
+
 }
 
 class GoodsList {
@@ -152,26 +150,59 @@ class GoodsList {
 
     totalSum() {
         let sum = 0;
-        for(let i = 0; i < this.goods.length; i++) {
+        for (let i = 0; i < this.goods.length; i++) {
             sum += this.goods[i].price;
         }
         return sum;
     }
 
-    render() {
+    render(filter = '') {
         let listHtml = '';
+        let filter_pattern = new RegExp(filter, 'i');
         console.log(this.goods)
         this.goods.forEach(good => {
-            const goodItem = new GoodsItem(good.product_name, good.price);
-            listHtml += goodItem.render();
-            console.log(good)
+            if (filter.length === 0 || good.product_name.search(filter_pattern) >= 0) {
+                const goodItem = new GoodsItem(good.product_name, good.price);
+                listHtml += goodItem.render();
+            }
+            // console.log(good)
         });
-        // console.log(listHtml)
+        console.log(listHtml)
         document.querySelector('.goods-list').innerHTML = listHtml;
         // console.log(this.totalSum());
     }
 
 }
 
-const list = new GoodsList();
-list.fetchGoods();
+const goodsList = new GoodsList();
+const basketList = new BasketList();
+
+const app = new Vue({
+    el: "#mainApp",
+    data: {
+        searchLine: '',
+        goods: goodsList,
+        basket: basketList,
+        isVisibleCart: false
+    },
+    methods: {
+        clickBasket() {
+            this.isVisibleCart = !this.isVisibleCart;
+            // if (this.isVisibleCart){
+            //     setTimeout(this.basket.render()
+            //     , (1000));
+            //     }
+            console.log(this.isVisibleCart);
+        },
+        searchGood() {
+            this.goods.render(this.searchLine)
+        }
+    },
+    mounted() {
+        console.log(this.searchLine);
+        this.goods.fetchGoods();
+        this.basket.getBasket();
+    }
+});
+
+console.log(app)

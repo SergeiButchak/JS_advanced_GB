@@ -1,18 +1,26 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <title>eShop</title>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="style.css">
+    <title>eShop</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <button class="cart-button" type="button">Корзина</button>
-  </header>
-  <main>
-    <div class="goods-list"></div>
-  </main>
-  
-  <script src="script.js"></script>
+<div id="mainApp">
+    <header>
+        <input type="text" v-model="searchLine">
+        <button class="search-button" @click="searchGood">Искать</button>
+        <button class="cart-button" @click="clickBasket">Корзина</button>
+    </header>
+    <main>
+        <div class="goods-list"></div>
+        <div class="basket" v-show="isVisibleCart">
+            <h2>Корзина</h2>
+            <div class="basket-list"></div>
+        </div>
+    </main>
+</div>
+<script src="vue.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
