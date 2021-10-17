@@ -8,15 +8,14 @@
 <body>
 <div id="mainApp">
     <header>
-        <input type="text" v-model="searchLine">
-        <button class="search-button" @click="searchGood">Искать</button>
+        <search-input></search-input>
         <button class="cart-button" @click="clickBasket">Корзина</button>
     </header>
     <main>
-        <div class="goods-list"></div>
+        <goods-list :goods="goods.filteredGoods"></goods-list>
         <div class="basket" v-show="isVisibleCart">
             <h2>Корзина</h2>
-            <div class="basket-list"></div>
+            <basket-list :goods="basket.goods"></basket-list>
         </div>
     </main>
 </div>

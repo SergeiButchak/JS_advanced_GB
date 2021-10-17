@@ -23,9 +23,9 @@ class GoodsItem {
         this.price = price;
     }
 
-    render() {
-        return `<div class="goods-item"><h3>${this.product_name}</h3><p>${this.price}</p></div>`;
-    }
+    // render() {
+    //     return `<div class="goods-item"><h3>${this.product_name}</h3><p>${this.price}</p></div>`;
+    // }
 }
 
 class BasketItem {
@@ -50,9 +50,9 @@ class BasketItem {
         return this.goodsItem.price * this.count;
     }
 
-    render() {
-        return `<div class="basket-item"><h3>${this.goodsItem.product_name}</h3><p>Количество: ${this.count}</p><p>Всего: ${this.total()}</p></div>`;
-    }
+    // render() {
+    //     return `<div class="basket-item"><h3>${this.goodsItem.product_name}</h3><p>Количество: ${this.count}</p><p>Всего: ${this.total()}</p></div>`;
+    // }
 
 }
 
@@ -68,7 +68,7 @@ class BasketList {
                 list.forEach(item => {
                     this.goods.push(new BasketItem(new GoodsItem(item.product_name, item.price), item.quantity))
                 })
-                this.render()
+                // this.render()
             },
             (error) => {
                 console.log(error)
@@ -116,31 +116,40 @@ class BasketList {
         return sum;
     }
 
-    render() {
-        let listHtml = '';
-
-        this.goods.forEach(good => {
-            const goodItem = new BasketItem(good.goodsItem, good.count);
-            listHtml += goodItem.render();
-            console.log(good)
-        });
-        console.log(listHtml)
-        document.querySelector('.basket-list').innerHTML = listHtml;
-        // console.log(this.totalSum());
-    }
+    // render() {
+    //     let listHtml = '';
+    //
+    //     this.goods.forEach(good => {
+    //         const goodItem = new BasketItem(good.goodsItem, good.count);
+    //         listHtml += goodItem.render();
+    //         console.log(good)
+    //     });
+    //     // console.log(listHtml)
+    //     document.querySelector('.basket-list').innerHTML = listHtml;
+    //     // console.log(this.totalSum());
+    // }
 
 }
 
 class GoodsList {
     constructor() {
         this.goods = [];
+        this.filteredGoods = this.goods;
     }
+
+    filterGoods(value) {
+        const regexp = new RegExp(value, 'i');
+        this.filteredGoods = this.goods.filter(good => regexp.test(good.product_name));
+        // this.render();
+    }
+
 
     fetchGoods(cb) {
         makeGETRequest(`${API_URL}/catalogData.json`).then(
             (response) => {
                 this.goods = response;
-                this.render()
+                this.filteredGoods = response;
+                // this.render()
             },
             (error) => {
                 console.log(error)
@@ -156,31 +165,91 @@ class GoodsList {
         return sum;
     }
 
-    render(filter = '') {
-        let listHtml = '';
-        let filter_pattern = new RegExp(filter, 'i');
-        console.log(this.goods)
-        this.goods.forEach(good => {
-            if (filter.length === 0 || good.product_name.search(filter_pattern) >= 0) {
-                const goodItem = new GoodsItem(good.product_name, good.price);
-                listHtml += goodItem.render();
-            }
-            // console.log(good)
-        });
-        console.log(listHtml)
-        document.querySelector('.goods-list').innerHTML = listHtml;
-        // console.log(this.totalSum());
-    }
+    // render() {
+    //     let listHtml = '';
+    //     // console.log(this.goods)
+    //     this.filteredGoods.forEach(good => {
+    //         const goodItem = new GoodsItem(good.product_name, good.price);
+    //         listHtml += goodItem.render();
+    //
+    //         // console.log(good)
+    //     });
+    //     // console.log(listHtml)
+    //     document.querySelector('.goods-list').innerHTML = listHtml;
+    //     // console.log(this.totalSum());
+    // }
 
 }
 
 const goodsList = new GoodsList();
 const basketList = new BasketList();
 
+Vue.component('goods-list', {
+    props: ['goods'],
+    template: `
+    <div class="goods-list">
+      <goods-item v-for="good in goods" :good="good" v-bind:key="good.id">
+      {{good}}
+</goods-item>
+    </div>
+  `
+
+});
+
+Vue.component('goods-item', {
+    props: ['good'],
+    template: `
+    <div class="goods-item">
+      <h3>{{ good.product_name }}</h3>
+      <p>{{ good.price }}</p>
+    </div>
+  `
+});
+
+Vue.component('basket-list', {
+    props: ['goods'],
+    template: `
+    <div class="basket-list">
+      <basket-item v-for="good in goods" :good="good" v-bind:key="good.id"></basket-item>
+    </div>
+  `
+});
+
+Vue.component('basket-item', {
+    props: ['good'],
+    template: `
+    <div class="basket-item">
+      <h3>{{ good.goodsItem.product_name }}</h3>
+      <p>Количество: {{good.count}}</p>
+      <p>Всего: {{good.total()}}</p>
+    </div>
+  `
+});
+
+Vue.component('search-input', {
+    data() {
+        return {
+            searchLine: ''
+        }
+    },
+    template: `
+        <span class="search">
+            <input class="search-input" type="text" v-model="searchLine">
+            <button class="search-button" @click="clickSearch">Искать</button>
+        </span>
+    `,
+    methods: {
+        clickSearch() {
+            const value = this.searchLine;
+            goodsList.filterGoods(value);
+        }
+    }
+
+});
+
 const app = new Vue({
     el: "#mainApp",
     data: {
-        searchLine: '',
         goods: goodsList,
         basket: basketList,
         isVisibleCart: false
@@ -188,14 +257,10 @@ const app = new Vue({
     methods: {
         clickBasket() {
             this.isVisibleCart = !this.isVisibleCart;
-            this.basket.render();
+            // this.basket.render();
         },
-        searchGood() {
-            this.goods.render(this.searchLine)
-        }
     },
     mounted() {
-        console.log(this.searchLine);
         this.goods.fetchGoods();
         this.basket.getBasket();
     }
