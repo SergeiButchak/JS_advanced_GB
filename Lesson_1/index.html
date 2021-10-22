@@ -12,10 +12,10 @@
         <button class="cart-button" @click="clickBasket">Корзина</button>
     </header>
     <main>
-        <goods-list :goods="goods.filteredGoods"></goods-list>
+        <goods-list :goods="goods.filteredGoods" :basket="basket"></goods-list>
         <div class="basket" v-show="isVisibleCart">
             <h2>Корзина</h2>
-            <basket-list :goods="basket.goods"></basket-list>
+            <basket-list :goods="basket"></basket-list>
         </div>
     </main>
 </div>
