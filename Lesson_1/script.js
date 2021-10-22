@@ -1,4 +1,5 @@
-const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses/'
+// const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses/'
+const API_URL = 'http://localhost:3000'
 
 function makeGETRequest(url, callback) {
     return new Promise((resolve, reject) => {
@@ -7,6 +8,24 @@ function makeGETRequest(url, callback) {
             new ActiveXObject("Microsoft.XMLHTTP");
         xhr.open('GET', url, true);
         xhr.send();
+        xhr.onload = () => {
+            if (+xhr.status === 200) {
+                resolve(JSON.parse(xhr.responseText))
+            } else {
+                reject(xhr.statusText)
+            }
+        }
+    });
+}
+
+function makePOSTRequest(url, data, callback) {
+    return new Promise((resolve, reject) => {
+        let xhr = (window.XMLHttpRequest) ?
+            new XMLHttpRequest() :
+            new ActiveXObject("Microsoft.XMLHTTP");
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        xhr.send(data);
         xhr.onload = () => {
             if (+xhr.status === 200) {
                 resolve(JSON.parse(xhr.responseText))
@@ -62,9 +81,10 @@ class BasketList {
     }
 
     getBasket() {
-        makeGETRequest(`${API_URL}/getBasket.json`).then(
+        makeGETRequest(`${API_URL}/cartData`).then(
             (response) => {
-                let list = response.contents;
+                let list = response;
+                console.log(list);
                 list.forEach(item => {
                     this.goods.push(new BasketItem(new GoodsItem(item.product_name, item.price), item.quantity))
                 })
@@ -76,10 +96,16 @@ class BasketList {
         );
     }
 
-    addGood(GoodsItem, count) {
-        makeGETRequest(`${API_URL}/addToBasket.json`).then(
+    addGood(Item, count) {
+        makePOSTRequest(`${API_URL}/additem`, `{"product_name": "${Item.product_name}", "price": ${Item.price}, "quantity": ${count}}`).then(
             (response) => {
                 console.log("TODO addGood")
+                let list = response;
+                console.log(list);
+                this.goods = []
+                list.forEach(item => {
+                    this.goods.push(new BasketItem(new GoodsItem(item.product_name, item.price), item.quantity))
+                })
                 //this.render()
             },
             (error) => {
@@ -88,10 +114,16 @@ class BasketList {
         );
     }
 
-    removeGood(GoodsItem, count) {
-        makeGETRequest(`${API_URL}/deleteFromBasket.json`).then(
+    removeGood(productName) {
+        makePOSTRequest(`${API_URL}/deleteitem`, `{"product_name": "${productName}"}`).then(
             (response) => {
-                console.log("TODO removeGood")
+                console.log("TODO addGood")
+                let list = response;
+                console.log(list);
+                this.goods = []
+                list.forEach(item => {
+                    this.goods.push(new BasketItem(new GoodsItem(item.product_name, item.price), item.quantity))
+                })
                 //this.render()
             },
             (error) => {
@@ -145,7 +177,7 @@ class GoodsList {
 
 
     fetchGoods(cb) {
-        makeGETRequest(`${API_URL}/catalogData.json`).then(
+        makeGETRequest(`${API_URL}/catalogData`).then(
             (response) => {
                 this.goods = response;
                 this.filteredGoods = response;
@@ -185,10 +217,10 @@ const goodsList = new GoodsList();
 const basketList = new BasketList();
 
 Vue.component('goods-list', {
-    props: ['goods'],
+    props: ['goods', 'basket'],
     template: `
     <div class="goods-list">
-      <goods-item v-for="good in goods" :good="good" v-bind:key="good.id">
+      <goods-item v-for="good in goods" :good="good"  :basket="basket" v-bind:key="good.id">
       {{good}}
 </goods-item>
     </div>
@@ -197,11 +229,12 @@ Vue.component('goods-list', {
 });
 
 Vue.component('goods-item', {
-    props: ['good'],
+    props: ['good', 'basket'],
     template: `
     <div class="goods-item">
       <h3>{{ good.product_name }}</h3>
       <p>{{ good.price }}</p>
+      <button v-on:click="basket.addGood(good, 1)">Добавить в корзину</button>
     </div>
   `
 });
@@ -210,18 +243,19 @@ Vue.component('basket-list', {
     props: ['goods'],
     template: `
     <div class="basket-list">
-      <basket-item v-for="good in goods" :good="good" v-bind:key="good.id"></basket-item>
+      <basket-item v-for="good in goods.goods" :good="good" :basket="goods" v-bind:key="good.id"></basket-item>
     </div>
   `
 });
 
 Vue.component('basket-item', {
-    props: ['good'],
+    props: ['good', 'basket'],
     template: `
     <div class="basket-item">
       <h3>{{ good.goodsItem.product_name }}</h3>
       <p>Количество: {{good.count}}</p>
       <p>Всего: {{good.total()}}</p>
+      <button v-on:click="basket.removeGood(good.goodsItem.product_name)">Удалить из корзину</button>
     </div>
   `
 });
