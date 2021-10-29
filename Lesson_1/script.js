@@ -1,5 +1,12 @@
 // const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses/'
+import goods from "./components/goods";
+import basket from "./components/basket";
+import search from "./components/search";
+
 const API_URL = 'http://localhost:3000'
+const goods_list = goods.goods;
+const basket_list = basket.basket;
+const search_input = search.search;
 
 function makeGETRequest(url, callback) {
     return new Promise((resolve, reject) => {
@@ -215,71 +222,6 @@ class GoodsList {
 
 const goodsList = new GoodsList();
 const basketList = new BasketList();
-
-Vue.component('goods-list', {
-    props: ['goods', 'basket'],
-    template: `
-    <div class="goods-list">
-      <goods-item v-for="good in goods" :good="good"  :basket="basket" v-bind:key="good.id">
-      {{good}}
-</goods-item>
-    </div>
-  `
-
-});
-
-Vue.component('goods-item', {
-    props: ['good', 'basket'],
-    template: `
-    <div class="goods-item">
-      <h3>{{ good.product_name }}</h3>
-      <p>{{ good.price }}</p>
-      <button v-on:click="basket.addGood(good, 1)">Добавить в корзину</button>
-    </div>
-  `
-});
-
-Vue.component('basket-list', {
-    props: ['goods'],
-    template: `
-    <div class="basket-list">
-      <basket-item v-for="good in goods.goods" :good="good" :basket="goods" v-bind:key="good.id"></basket-item>
-    </div>
-  `
-});
-
-Vue.component('basket-item', {
-    props: ['good', 'basket'],
-    template: `
-    <div class="basket-item">
-      <h3>{{ good.goodsItem.product_name }}</h3>
-      <p>Количество: {{good.count}}</p>
-      <p>Всего: {{good.total()}}</p>
-      <button v-on:click="basket.removeGood(good.goodsItem.product_name)">Удалить из корзину</button>
-    </div>
-  `
-});
-
-Vue.component('search-input', {
-    data() {
-        return {
-            searchLine: ''
-        }
-    },
-    template: `
-        <span class="search">
-            <input class="search-input" type="text" v-model="searchLine">
-            <button class="search-button" @click="clickSearch">Искать</button>
-        </span>
-    `,
-    methods: {
-        clickSearch() {
-            const value = this.searchLine;
-            goodsList.filterGoods(value);
-        }
-    }
-
-});
 
 const app = new Vue({
     el: "#mainApp",
